@@ -74,6 +74,54 @@ app.get('/api/songs', async (req, res) => {
     }
 });
 
+app.post('/api/signup', async (req, res) => {
+    // Sign up logic here
+    const { username, email, password } = req.body; // Get the username, email and password from the request body
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return res.status(409).send('User already exists');
+    }
+    // Create a new user document
+    const newUser = new User({ username, email, password, role: 'User' });
+    // Save the user document
+    await newUser.save();
+    // Send a success message
+    res.status(201).json({ 
+        status: 'success',
+        role: 'User',
+        message: 'User created successfully' });
+    res.send('User registered successfully');
+});
+
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body; // Get the email and password from the request body
+        // Check if the user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).send('Invalid email or password');
+        }   else {
+            // Check if the password is correct
+            const validPassword = await user.comparePassword(password);
+            if (!validPassword) {
+                return res.status(401).send('Invalid email or password');
+            }
+        
+            res.json({
+                status:'success',
+                role: user.role,
+                message: 'Logged in successfully',
+            });
+        }
+        res.send('Logged in successfully');
+        // Send a success message
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+}
+);
+
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`);
 
