@@ -2,11 +2,13 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const Song = require('./songModel');
+const SingleSong = require('./songModel1');
 const bodyParser = require('body-parser');
 const port = 3000;
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const User = require('./UserModel');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -121,6 +123,37 @@ app.post('/api/login', async (req, res) => {
     }
 }
 );
+
+app.post('/single', upload.fields([{ name: 'song', maxCount: 1 }, { name: 'artwork', maxCount: 1 }]) ,async (req, res) => {
+    const { title, artist } = req.body;
+    const songUrl = req.files.song[0].path;
+    const artworkUrl = req.files.artwork[0].path;
+
+    const newSongData = {
+        url: songUrl,
+        title,
+        artist,
+        artwork: artworkUrl
+    };
+    
+    try {
+        const song = await SingleSong.create(newSongData);
+        console.log("Song--->",song);
+        res.status(201).json({data:[song]});
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+}
+);
+
+app.get('/single', async (req, res) => {
+    try {
+        const songs = await SingleSong.find({});
+        res.json(songs);
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
+});
 
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`);
