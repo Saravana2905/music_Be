@@ -99,20 +99,23 @@ app.post('/api/signup', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body; // Get the email and password from the request body
+        console.log("req email--->",email)
+        console.log("req password--->",password)
         // Check if the user exists
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).send('Invalid email or password');
         }   else {
             // Check if the password is correct
-            const validPassword = await user.comparePassword(password);
+            const validPassword = (user.password === password);
+            
             if (!validPassword) {
                 return res.status(401).send('Invalid email or password');
             }
         
             res.json({
                 status:'success',
-                role: user.role,
+                role: 'user',
                 message: 'Logged in successfully',
             });
         }
