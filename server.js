@@ -93,7 +93,6 @@ app.post('/api/signup', async (req, res) => {
         status: 'success',
         role: 'User',
         message: 'User created successfully' });
-    res.send('User registered successfully');
 });
 
 app.post('/api/login', async (req, res) => {
@@ -119,8 +118,6 @@ app.post('/api/login', async (req, res) => {
                 message: 'Logged in successfully',
             });
         }
-        res.send('Logged in successfully');
-        // Send a success message
     } catch (err) {
         res.status(500).send(err.message);
     }
