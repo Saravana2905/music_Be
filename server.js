@@ -56,9 +56,9 @@ const createSong = async (req, res) => {
 
         // Save the updated Song document
         const updatedSong = await song.save();
-        res.status(201).json(updatedSong);
+    res.status(201).json({status:"success",updatedSong});
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({ status:"false", message: err.message });
     }
 };
 
@@ -70,29 +70,34 @@ app.post('/api/songs', upload.fields([{ name: 'song', maxCount: 1 }, { name: 'ar
 app.get('/api/songs', async (req, res) => {
     try {
         const songs = await Song.find({});
-        res.json(songs);
+        res.status(200).json({status:"success",songs});
     } catch (err) {
-        res.status(500).json({message: err.message});
+        res.status(500).json({ status: "false" ,message: err.message});
     }
 });
 
 app.post('/api/signup', async (req, res) => {
-    // Sign up logic here
-    const { username, email, password } = req.body; // Get the username, email and password from the request body
-    // Check if the user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-        return res.status(409).send('User already exists');
+    try {
+        // Sign up logic here
+        const { username, email, password } = req.body; // Get the username, email and password from the request body
+        // Check if the user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ status: "false", message: 'User already exists' });
+        }
+        // Create a new user document
+        const newUser = new User({ username, email, password, role: 'User' });
+        // Save the user document
+        await newUser.save();
+        // Send a success message
+        res.status(201).json({
+            status: 'success',
+            role: 'User',
+            message: 'User created successfully'
+        });
+    } catch (err) {
+        res.status(500).json({ status: "false", message: err.message });
     }
-    // Create a new user document
-    const newUser = new User({ username, email, password, role: 'User' });
-    // Save the user document
-    await newUser.save();
-    // Send a success message
-    res.status(201).json({ 
-        status: 'success',
-        role: 'User',
-        message: 'User created successfully' });
 });
 
 app.post('/api/login', async (req, res) => {
@@ -119,7 +124,7 @@ app.post('/api/login', async (req, res) => {
             });
         }
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({status: "false", message:err.message});
     }
 }
 );
