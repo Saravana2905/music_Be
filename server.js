@@ -70,7 +70,7 @@ app.post('/api/songs', upload.fields([{ name: 'song', maxCount: 1 }, { name: 'ar
 app.get('/api/songs', async (req, res) => {
     try {
         const songs = await Song.find({});
-        res.status(200).json({status:"success",songs});
+        res.status(200).json(songs);
     } catch (err) {
         res.status(500).json({ status: "false" ,message: err.message});
     }
