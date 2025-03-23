@@ -114,7 +114,7 @@ app.post('/api/login', async (req, res) => {
             const validPassword = (user.password === password);
             
             if (!validPassword) {
-                return res.status(401).send('Invalid email or password');
+                return res.status(401).json({status: false, message: 'Invalid email or password'});
             }
         
             res.json({
